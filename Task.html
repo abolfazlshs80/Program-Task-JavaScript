@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>برنامه مدیریت وظایف</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+    text-align: center;
+    direction: rtl;
+        }
+        .contianer{
+        
+            display: flex;
+            justify-content: center;
+            justify-items: center;
+            
+        }
+*{
+    margin-top: 10px;
+}
+        .task {
+            background-color: #f2f2f2;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: move;
+        }
+
+        .task.completed {
+            text-decoration: line-through;
+            background-color: #d3ffd3;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>برنامه مدیریت وظایف</h1>
+    <br/>
+    <div class="contianer"></div>
+    <form id="task-form">
+        <label for="task-name">نام وظیفه:</label>
+        <input type="text" id="task-name" required>
+        <br>
+        <label for="task-time">ساعت وظیفه:</label>
+        <input type="time" id="task-time" required>
+        <br>
+        <input type="submit" value="افزودن وظیفه">
+    </form>
+    <div id="tasks-container"></div>
+
+    <script>
+        let taskIdCounter = 1;
+        const tasks = [];
+
+        function renderTasks() {
+            const tasksContainer = document.getElementById('tasks-container');
+            tasksContainer.innerHTML = '';
+
+            tasks.forEach(task => {
+                const taskElement = document.createElement('div');
+                taskElement.id = `task-${task.id}`;
+                taskElement.className = 'task';
+                taskElement.draggable = true;
+                taskElement.innerHTML = `
+                    <span>${task.name}</span> - 
+                    <span>${task.time}</span>
+                    <button onclick="deleteTask(${task.id})">حذف</button>
+                    <button onclick="editTask(${task.id})">ویرایش</button>
+                `;
+                console.log(task.id)
+
+                if (task.completed) {
+                    taskElement.classList.add('completed');
+                }
+
+                taskElement.addEventListener('click', toggleTaskCompletion);
+    
+                tasksContainer.appendChild(taskElement);
+            });
+        }
+
+
+        function toggleTaskCompletion(event) {
+            const taskId = parseInt(event.target.id.split('-')[1], 10);
+            const taskIndex = tasks.findIndex(task => task.id === taskId);
+            tasks[taskIndex].completed = !tasks[taskIndex].completed;
+            renderTasks();
+        }
+
+        function addTask(event) {
+            event.preventDefault();
+            const taskName = document.getElementById('task-name').value;
+            const taskTime = document.getElementById('task-time').value;
+            const newTask = { id: taskIdCounter++, name: taskName, time: taskTime, completed: false };
+            tasks.push(newTask);
+            renderTasks();
+            document.getElementById('task-name').value = '';
+            document.getElementById('task-time').value = '';
+        }
+
+        function deleteTask(taskId) {
+            const taskIndex = tasks.findIndex(task => task.id === taskId);
+            tasks.splice(taskIndex,1);
+            renderTasks();
+        }
+
+        function editTask(taskId) {
+            const taskIndex = tasks.findIndex(task => task.id === taskId);
+            const taskName = prompt('نام وظیفه را ویرایش کنید:', tasks[taskIndex].name);
+            if (taskName !== null) {
+                tasks[taskIndex].name = taskName;
+                renderTasks();
+            }
+        }
+
+        // اضافه کردن ایونت به فرم افزودن وظیفه
+        const taskForm = document.getElementById('task-form');
+        taskForm.addEventListener('submit', addTask);
+
+        // اجرای تابع برای نمایش ابتدایی وظایف
+        renderTasks();
+    </script>
+</body>
+</html>
